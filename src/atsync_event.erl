@@ -126,9 +126,8 @@ compile1(FileName,Dir) ->
 
     IncludeDir = AppDir ++ "/include/",
 
-    compile:file(io_lib:format("~s/~s", [Dir, Module]),
+    c:c(io_lib:format("~s/~s", [Dir, Module]),
         [debug_info, verbose,report_errors,report_warnings, {i, IncludeDir}]),
-    c:l(list_to_atom(Module)),
 
     io:format("Recompile: ~s/~s~n", [Dir, Module]),
 
