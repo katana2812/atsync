@@ -101,8 +101,10 @@ find_app_dir(Dir) ->
     string:sub_string(Dir, 1, SrcIndex-1).
 
 compile(FileName,Dir,undefined) ->
-    compile1(FileName,Dir),
-    {FileName,Dir,calendar:local_time()};
+    case compile1(FileName,Dir) of
+        error  -> undefined;
+        _Other -> {FileName,Dir,calendar:local_time()}
+    end;
 compile(FileName,Dir,State) ->
     {LastFile, LastDir, LastTime} = State,
 
@@ -112,11 +114,13 @@ compile(FileName,Dir,State) ->
 
     case ((FileName==LastFile) and (Dir==LastDir) and ((NowSec - LastSec) =< 1)) of
         true ->
-            {LastFile, LastDir, LastTime};
+            State;
 
-        _Other ->
-            compile1(FileName,Dir),
-            {FileName, Dir, Now}
+        _Other1 ->
+            case compile1(FileName,Dir) of
+                error   -> State;
+                _Other2 -> {FileName, Dir, Now}
+            end
     end.
 
 compile1(FileName,Dir) ->
@@ -126,14 +130,20 @@ compile1(FileName,Dir) ->
 
     IncludeDir = AppDir ++ "/include/",
 
-    c:c(io_lib:format("~s/~s", [Dir, Module]),
-        [debug_info, verbose,report_errors,report_warnings, {i, IncludeDir}]),
+    case c:c(io_lib:format("~s/~s", [Dir, Module]),
+        [debug_info, verbose,report_errors,report_warnings, {i, IncludeDir}]) of
+        error ->
+            io:format("Error: ~s/~s~n", [Dir, Module]),
+            error;
 
-    io:format("Recompile: ~s/~s~n", [Dir, Module]),
+        _Other ->
+            io:format("Recompile: ~s/~s~n", [Dir, Module]),
 
-    BeamFile = Module ++ ".beam",
+            BeamFile = Module ++ ".beam",
 
-    SrcFile = io_lib:format("./~s", [BeamFile]),
-    DstFile = io_lib:format("~sebin/~s", [AppDir, BeamFile]),
-    file:copy(SrcFile, DstFile),
-    file:delete(SrcFile).
+            SrcFile = io_lib:format("./~s", [BeamFile]),
+            DstFile = io_lib:format("~sebin/~s", [AppDir, BeamFile]),
+            file:copy(SrcFile, DstFile),
+            file:delete(SrcFile),
+            {ok, Module}
+    end.
