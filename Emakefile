@@ -1,4 +1,4 @@
-% Compile Nitrogen
+% Compile
 {['./src/*',
   './src/*/*',
   './src/*/*/*'],
