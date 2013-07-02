@@ -45,11 +45,9 @@ init([]) ->
 %% gen_event:notify/2 or gen_event:sync_notify/2, this function is called for
 %% each installed event handler to handle the event.
 %%------------------------------------------------------------------------------
-handle_event({inotify,modify,false,FileName,Dir}, State) ->
-    {ok, compile(FileName,Dir,State)};
-
-handle_event({inotify,moved_to,false,FileName,Dir}, State) ->
-    {ok, compile(FileName,Dir,State)};
+handle_event({inotify,_Event,false,FileName,Dir}, State) ->
+    compile(FileName,Dir),
+    {ok, State};
 
 handle_event(_Data, State) ->
     {ok, State}.
@@ -100,30 +98,7 @@ find_app_dir(Dir) ->
     SrcIndex = string:rstr(Dir, "src"),
     string:sub_string(Dir, 1, SrcIndex-1).
 
-compile(FileName,Dir,undefined) ->
-    case compile1(FileName,Dir) of
-        error  -> undefined;
-        _Other -> {FileName,Dir,calendar:local_time()}
-    end;
-compile(FileName,Dir,State) ->
-    {LastFile, LastDir, LastTime} = State,
-
-    Now = calendar:local_time(),
-    NowSec = calendar:datetime_to_gregorian_seconds(Now),
-    LastSec = calendar:datetime_to_gregorian_seconds(LastTime),
-
-    case ((FileName==LastFile) and (Dir==LastDir) and ((NowSec - LastSec) =< 1)) of
-        true ->
-            State;
-
-        _Other1 ->
-            case compile1(FileName,Dir) of
-                error   -> State;
-                _Other2 -> {FileName, Dir, Now}
-            end
-    end.
-
-compile1(FileName,Dir) ->
+compile(FileName,Dir) ->
     Module = lists:nth(1, string:tokens(FileName, ".")),
 
     AppDir = find_app_dir(Dir),
