@@ -11,6 +11,7 @@ start_link() ->
 
 %% Initialization of the server, start other process.
 init([]) ->
+    %% params
     RestartStrategy = one_for_all,
     MaxRestarts = 1000,
     MaxSecondsBetweenRestarts = 120,

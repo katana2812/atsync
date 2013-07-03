@@ -5,7 +5,7 @@
 %%%      around the 'inotifywait' executable.
 %%% @end
 %%%---------------------------------------------------------------
-
+%%%
 %%% License: LGPLv3
 %%% See: http://www.gnu.org/copyleft/lesser.html
 

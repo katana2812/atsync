@@ -26,7 +26,7 @@ get_all_contents(Directory) ->
     end.
 
 %% APIs for 'erlydb' configuration.
-
+%%
 %% @doc
 %% Return content of 'erlydb' configuration file.
 %%

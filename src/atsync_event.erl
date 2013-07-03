@@ -1,4 +1,5 @@
 %%
+%%
 -module(atsync_event).
 
 -behaviour(gen_event).

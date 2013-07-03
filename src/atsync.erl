@@ -1,6 +1,5 @@
 %% Copyright (c) 2011 Rusty Klophaus
 %% Released under the MIT License.
-
 -module (atsync).
 -behaviour(application).
 
